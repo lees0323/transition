@@ -8,6 +8,8 @@ const segments = [
 ];
 
 const key = 'buccaneers-act-iii-v1';
+const SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxsVpAblYzn-c4cKze6DLf-hkPXkHvb_wh5TLJkzK4ff_-oN1uRPTD5dxNsY09Ew7JO/exec';
+
 const empty = () => ({
 	transition: { preference: [], front: '', brass: '', notes: '' },
 	segments: segments.map(() => ({ rating: 0, music: [], visual: [], notes: '' })),
@@ -81,12 +83,13 @@ function render() {
 	document.querySelector('aside > .eyebrow').textContent = transitionScreen ? 'ACT II → ACT III' : 'ACT III · CLICK CLACK SYMPHONY';
 	document.querySelector('aside > h1').innerHTML = transitionScreen ? 'The transition<br><em>& some<br>thoughts.</em>' : 'Act III<br><em>The music.</em>';
 	document.querySelector('aside > .intro').innerHTML = transitionScreen ? 'Coming out of Act II and into Act III.<br>Two options to listen to<br>and discuss together.' : 'Listen to the six sections.<br>Share your thoughts, then choose<br>the four we could use.';
-	document.querySelector('#nav').innerHTML = ['The transition', 'Listening desk', 'Build the arc', 'Your response'].map((x, i) => `<button data-stage="${i}" class="${stage === i ? 'active' : ''}" ${stage === i ? 'aria-current="step"' : ''}><b>0${i + 1}</b>${x}</button>`).join(''); document.querySelector('#chapter').textContent = `0${stage + 1} / 04 · Act III exploration`;
+	document.querySelector('#nav').innerHTML = ['The transition', 'Listening desk', 'Build the arc', 'Your response'].map((x, i) => `<button data-stage="${i}" class="${stage === i ? 'active' : ''}" ${stage === i ? 'aria-current="step"' : ''}><b>0${i + 1}</b>${x}</button>`).join('');
+	document.querySelector('#chapter').textContent = `0${stage + 1} / 04 · Act III exploration`;
 	if (!storage) document.querySelector('#save').textContent = 'Memory only · export to keep your draft';
 
-    if (stage === 0) {
-        view.innerHTML = `<p class="eyebrow">COMING OUT OF ACT II</p><h2>Here’s the transition—and some thoughts.</h2><p class="lead">The idea is to have the pit recapitulate the beginning of the ballad as we come out of Act II and into Act III. Then we layer in one of two Björk options: Hyperballad or Human Behavior. Listen to both transition recordings and leave your thoughts below.</p><div class="grid"><div class="card"><p class="eyebrow">TRANSITION 01</p><h3>Transition option 1</h3><p class="muted">The first recording for comparing the two transition ideas.</p>${audio('1Xox82ESl9G-MDAGxX-i8JlJDUGvhOf48')}</div><div class="card"><p class="eyebrow">TRANSITION 02</p><h3>Transition option 2</h3><p class="muted">The second recording for comparing the two transition ideas.</p>${audio('1VjuBWajUiDXEFWDO6gm7v3lJODsVORUg')}</div></div><p class="muted">Recordings open in Google Drive. Access depends on the file’s sharing permissions.</p><span class="section-label">Which transition option do you prefer?</span>${chips(['Transition 01', 'Transition 02', 'A blend of both', 'Still exploring'], state.transition.preference, 'preference')}${field('Thoughts on the pit recapitulating the beginning of the ballad?', 'transition.front', state.transition.front, 'What works here? What would you change or develop?')}${field('Thoughts on where the brass could enter?', 'transition.brass', state.transition.brass, 'Where do you hear a possible brass entrance?')}${field('Other transition ideas', 'transition.notes', state.transition.notes, 'What else do you hear or imagine?')}${footer('Working ideas for the team to discuss.', 'Continue to Act III', 1)}`;
-    }
+	if (stage === 0) {
+		view.innerHTML = `<p class="eyebrow">COMING OUT OF ACT II</p><h2>Here’s the transition—and some thoughts.</h2><p class="lead">The idea is to have the pit recapitulate the beginning of the ballad as we come out of Act II and into Act III. Then we layer in one of two Björk options: Hyperballad or Human Behavior. Listen to both transition recordings and leave your thoughts below.</p><div class="grid"><div class="card"><p class="eyebrow">TRANSITION 01</p><h3>Transition option 1</h3><p class="muted">The first recording for comparing the two transition ideas.</p>${audio('1Xox82ESl9G-MDAGxX-i8JlJDUGvhOf48')}</div><div class="card"><p class="eyebrow">TRANSITION 02</p><h3>Transition option 2</h3><p class="muted">The second recording for comparing the two transition ideas.</p>${audio('1VjuBWajUiDXEFWDO6gm7v3lJODsVORUg')}</div></div><p class="muted">Recordings open in Google Drive. Access depends on the file’s sharing permissions.</p><span class="section-label">Which transition option do you prefer?</span>${chips(['Transition 01', 'Transition 02', 'A blend of both', 'Still exploring'], state.transition.preference, 'preference')}${field('Thoughts on the pit recapitulating the beginning of the ballad?', 'transition.front', state.transition.front, 'What works here? What would you change or develop?')}${field('Thoughts on where the brass could enter?', 'transition.brass', state.transition.brass, 'Where do you hear a possible brass entrance?')}${field('Other transition ideas', 'transition.notes', state.transition.notes, 'What else do you hear or imagine?')}${footer('Working ideas for the team to discuss.', 'Continue to Act III', 1)}`;
+	}
 
 	if (stage === 1) {
 		const s = segments[active], r = state.segments[active];
@@ -100,7 +103,7 @@ function render() {
 
 	if (stage === 3) {
 		const valid = state.picks.length === 4 && state.ending !== '';
-		view.innerHTML = `<p class="eyebrow">THE DESIGNER’S PERSPECTIVE</p><h2>Give your ideas a voice.</h2><p class="lead">A working draft, ready to revisit. Add your name and perspective, then keep a private copy of your thinking.</p><div class="grid"><div><label class="section-label" for="name">Designer name</label><input id="name" data-path="name" value="${esc(state.name)}" placeholder="Your name" autocomplete="name"></div><div><label class="section-label" for="role">Design role / perspective</label><input id="role" data-path="role" value="${esc(state.role)}" placeholder="Brass, percussion, visual, color guard…"></div></div>${field('One idea the team should not lose', 'overall', state.overall, 'What feels most important as Act III takes shape?')}<div class="card" style="margin-top:25px"><p class="eyebrow">YOUR LISTENING SNAPSHOT</p><div class="review-row"><span>Transition direction</span><strong>${esc(state.transition.preference.join(', ') || 'Still open')}</strong></div>${segments.map((s, i) => `<div class="review-row"><span>${s[0]} · ${s[1]}</span><strong>${state.segments[i].rating ? state.segments[i].rating + ' / 5' : 'Unrated'} · ${state.segments[i].music.length + state.segments[i].visual.length} ideas${state.segments[i].notes ? ' · Notes added' : ''}</strong></div>`).join('')}<div class="review-row"><span>Your four passages</span><strong>${state.picks.slice().sort((a, b) => a - b).map(i => segments[i][0]).join(' → ') || 'Not selected'}</strong></div><div class="review-row"><span>Chosen ending</span><strong>${state.ending !== '' ? segments[Number(state.ending)][0] : 'Not selected'}</strong></div><p class="muted">Passages above are listed in source order; your creative notes describe the proposed arc.</p>${!valid ? '<button class="secondary" data-stage="2">Complete the four-passage challenge →</button>' : ''}</div><div class="note"><strong>Private, local draft only.</strong> Responses are stored in this browser on this device, not sent to a team or shared database. There are no accounts or multiuser collection yet. Anyone using this browser profile can see this draft. Export a copy before clearing browser data.</div><div class="footer"><button class="secondary" id="export">Export draft (.json) ↓</button><button class="primary" id="finish" ${!valid ? 'disabled' : ''}>Save reviewed draft ✓</button></div><button class="secondary" id="clear" style="margin-top:24px">Clear this browser’s draft</button>`;
+		view.innerHTML = `<p class="eyebrow">THE DESIGNER’S PERSPECTIVE</p><h2>Give your ideas a voice.</h2><p class="lead">A working draft, ready to revisit. Add your name and perspective, then keep a private copy of your thinking.</p><div class="grid"><div><label class="section-label" for="name">Designer name</label><input id="name" data-path="name" value="${esc(state.name)}" placeholder="Your name" autocomplete="name"></div><div><label class="section-label" for="role">Design role / perspective</label><input id="role" data-path="role" value="${esc(state.role)}" placeholder="Brass, percussion, visual, color guard…"></div></div>${field('One idea the team should not lose', 'overall', state.overall, 'What feels most important as Act III takes shape?')}<div class="card" style="margin-top:25px"><p class="eyebrow">YOUR LISTENING SNAPSHOT</p><div class="review-row"><span>Transition direction</span><strong>${esc(state.transition.preference.join(', ') || 'Still open')}</strong></div>${segments.map((s, i) => `<div class="review-row"><span>${s[0]} · ${s[1]}</span><strong>${state.segments[i].rating ? state.segments[i].rating + ' / 5' : 'Unrated'} · ${state.segments[i].music.length + state.segments[i].visual.length} ideas${state.segments[i].notes ? ' · Notes added' : ''}</strong></div>`).join('')}<div class="review-row"><span>Your four passages</span><strong>${state.picks.slice().sort((a, b) => a - b).map(i => segments[i][0]).join(' → ') || 'Not selected'}</strong></div><div class="review-row"><span>Chosen ending</span><strong>${state.ending !== '' ? segments[Number(state.ending)][0] : 'Not selected'}</strong></div><p class="muted">Passages above are listed in source order; your creative notes describe the proposed arc.</p>${!valid ? '<button class="secondary" data-stage="2">Complete the four-passage challenge →</button>' : ''}</div><div class="note"><strong>Submitting to team spreadsheet.</strong> Clicking submit sends your response directly to the team sheet and saves a local backup in this browser.</div><div class="footer"><button class="secondary" id="export">Export draft (.json) ↓</button><button class="primary" id="finish" ${!valid ? 'disabled' : ''}>Submit response to team sheet ✓</button></div><button class="secondary" id="clear" style="margin-top:24px">Clear this browser’s draft</button>`;
 	}
 }
 
@@ -144,7 +147,34 @@ document.addEventListener('click', e => {
 		toast('Draft exported. Nothing was submitted.');
 	} else if (b.id === 'finish') {
 		save();
-		toast(storage ? 'Reviewed draft saved in this browser only.' : 'Browser storage unavailable. Export your draft to keep it.');
+		const originalText = b.textContent;
+		b.disabled = true;
+		b.textContent = 'Submitting to sheet…';
+
+		const payload = {
+			prototype: '2027 Reading Buccaneers Act III',
+			scope: 'Google Sheets integration',
+			exportedAt: new Date().toISOString(),
+			segmentReference: segments.map(s => ({ label: s[0], time: s[1] })),
+			response: state
+		};
+
+		fetch(SHEET_WEBHOOK_URL, {
+			method: 'POST',
+			mode: 'no-cors',
+			headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+			body: JSON.stringify(payload)
+		})
+		.then(() => {
+			toast('Response submitted to the team spreadsheet!');
+		})
+		.catch(() => {
+			toast('Network error — saved locally in browser. Export JSON as backup.');
+		})
+		.finally(() => {
+			b.disabled = false;
+			b.textContent = originalText;
+		});
 	} else if (b.id === 'clear' && confirm('Clear all responses saved in this browser? Export first if you want to keep a copy.')) {
 		state = empty();
 		save();
